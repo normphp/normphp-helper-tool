@@ -1,0 +1,10 @@
+{
+  "name":"系统部署",
+  "author": "pizepei",
+  "baseAuthGroup": {
+    "systemDeploy": {
+      "name":"系统部署",
+      "explain": "基础的系统管理"
+    }
+  }
+}

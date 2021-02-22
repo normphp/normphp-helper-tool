@@ -1,0 +1,25 @@
+{
+    "name": "normphp/normphp-helper-tool",
+    "description": "normphp-helper-tool ",
+    "keywords": ["normphp","helper","tool"],
+    "homepage": "https://normphp.org",
+    "authors": [
+        {
+            "name": "pizepei",
+            "email": "pizepei@pizepei.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.0.0",
+        "ext-zip": "*",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "repositories": {
+    },
+    "autoload": {
+        "psr-4": {
+            "normphp\\normphpHelperTool\\": "src/"
+        }
+    }
+}
