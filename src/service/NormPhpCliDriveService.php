@@ -15,7 +15,7 @@ class NormPhpCliDriveService
     /**
      * 当前脚手架依赖的php版本
      */
-    const RELY_PHP_VERSION = '8.0';
+    const RELY_PHP_VERSION = '8.1';
     /**
      * 当前版本
      */
@@ -43,10 +43,10 @@ class NormPhpCliDriveService
         '-v'=>['msg'=>'查看当前normphp-helper版本','method'=>'','content'=>self::VERSIONS,'help'=>[]],
         '-i'=>['msg'=>'查看当前可用信息','method'=>'getInfo','content'=>'','help'=>[]],
         '-php'=>['msg'=>'php相关操作如下载不同版本php、切换php版本','method'=>'phpCli','content'=>'','help'=>[
-            'run'=>['msg'=>'运行对应版本php： -php run [7.3|7.4|8.0] [对应的php命令|composer+命令|phpunit+命令]','content'=>''],
-            'install'=>['msg'=>'安装对应版本php： -php install [7.3|7.4|8.0|all] [OFFICIAL|CLOUD] ','content'=>''],
-            'update'=>['msg'=>'更新对应版本php： -php update [7.3|7.4|8.0|all] [OFFICIAL|CLOUD] ','content'=>''],
-            'switch'=>['msg'=>'切换php环境变量到对应版本： -php switch [7.3|7.4|8.0]','content'=>''],
+            'run'=>['msg'=>'运行对应版本php： -php run [7.3|7.4|8.1] [对应的php命令|composer+命令|phpunit+命令]','content'=>''],
+            'install'=>['msg'=>'安装对应版本php： -php install [7.3|7.4|8.1|all] [OFFICIAL|CLOUD] ','content'=>''],
+            'update'=>['msg'=>'更新对应版本php： -php update [7.3|7.4|8.1|all] [OFFICIAL|CLOUD] ','content'=>''],
+            'switch'=>['msg'=>'切换php环境变量到对应版本： -php switch [7.3|7.4|8.1]','content'=>''],
         ]],
     ];
     /**
@@ -67,7 +67,7 @@ class NormPhpCliDriveService
      * @param string $name
      * @return string
      */
-    public function help($data=self::NORMPHP_CLI,string $name='')
+    public function help(array|string $data=self::NORMPHP_CLI, string $name='')
     {
         $msg = ' '.$name.' 帮助信息 [x1|x2|x3] 代表参数可选择的范围'.PHP_EOL;
         $row = '   ';
@@ -109,10 +109,10 @@ class NormPhpCliDriveService
 
     /**
      * 获取脚手架信息
-     * @param $ARGV
+     * @param array|string $ARGV
      * @return string
      */
-    public function getInfo($ARGV):string
+    public function getInfo(array|string $ARGV):string
     {
         exec('composer -V',$composerRes);
         exec('phpunit --version',$phpunitRes);
@@ -136,27 +136,27 @@ class NormPhpCliDriveService
      * @param string $content 输出内容
      * @param bool $exit 是否结束
      */
-    public function output(string $content,bool$exit=false)
+    public function output(string $content, bool $exit=false)
     {
         echo $content;
     }
 
     /**
      * -php 命令行处理方法
-     * @param $ARGV
+     * @param array|string $ARGV
      * @return string
+     * @throws \Exception
      */
-    public function phpCli($ARGV)
+    public function phpCli(array|string $ARGV)
     {
         # 判断对应参数是否存在
         if (isset($ARGV[4]) && !empty($ARGV[4])){
             return match ($ARGV[4]) {
-                'install' => $this->phpInstall($ARGV,false),
-                'update' => $this->phpUpdate($ARGV),
-                'switch' => $this->phpSwitch($ARGV),
-                'run' => $this->phpRun($ARGV),
+                'install'   => $this->phpInstall($ARGV,false),
+                'update'    => $this->phpUpdate($ARGV),
                 'switch'    => $this->phpSwitch($ARGV),
-                default=>$this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]),
+                'run'       => $this->phpRun($ARGV),
+                default     => $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]),
             };
         }else{
             return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);
@@ -165,16 +165,19 @@ class NormPhpCliDriveService
 
     /**
      * 切换环境变量为对应的php版本
-     * @param $ARGV
+     * @param array|string $ARGV
+     * @return string
      */
-    public function phpSwitch($ARGV)
+    public function phpSwitch(array|string $ARGV): string
     {
-        if (!isset($ARGV[5]))return$this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[4]);
+        if (!isset($ARGV[5])) {
+            return$this->help(self::NORMPHP_CLI[$ARGV[3]]['help'], $ARGV[4]);
+        }
         # 获取当前版本号
         exec('php -v', $res);
         # 准备需要切换的版本号php目录
-        $phpFile = dirname($this->APP->DOCUMENT_ROOT,1).DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$ARGV[5].DIRECTORY_SEPARATOR.'x86'.DIRECTORY_SEPARATOR.'php.exe';
-        $phpDir = dirname($this->APP->DOCUMENT_ROOT,1).DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$ARGV[5].DIRECTORY_SEPARATOR.'x86';
+        $phpFile = dirname($this->APP->DOCUMENT_ROOT,1).DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$ARGV[5].DIRECTORY_SEPARATOR.'php.exe';
+        $phpDir = dirname($this->APP->DOCUMENT_ROOT,1).DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$ARGV[5];
         if (!is_file($phpFile)){return '    PHP '.$ARGV[5].'不存在，请先安装！';}
         if (count($res) <3){
             echo '  当前PHP版本异常：直接强制切换到您需要的版本'.PHP_EOL;
@@ -194,11 +197,13 @@ class NormPhpCliDriveService
               .' ********************************************************************************************'.PHP_EOL
             ;
     }
+
     /**
      * php -m
-     * @param $ARGV
+     * @param array|string $ARGV
+     * @return string
      */
-    public function phpRun($ARGV)
+    public function phpRun(array|string $ARGV): string
     {
         if (!isset($ARGV[5]) || empty($ARGV[5])  ){
             return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);
@@ -213,7 +218,7 @@ class NormPhpCliDriveService
         # 基础phpunit路径
         $phpunitRootPath = dirname($this->APP->DOCUMENT_ROOT,1).DIRECTORY_SEPARATOR.'phpunit'.DIRECTORY_SEPARATOR.'phpunit.phar';
         # 检查php.exe 是否存在
-        $phpExePath = $phpRootPath.$ARGV[5].DIRECTORY_SEPARATOR.'x86'.DIRECTORY_SEPARATOR.'php.exe';
+        $phpExePath = $phpRootPath.$ARGV[5].DIRECTORY_SEPARATOR.'php.exe';
         if (!is_file($phpExePath)){
             return 'PHP:'.$ARGV[5].'不存在的，请先安装';
         }
@@ -221,7 +226,6 @@ class NormPhpCliDriveService
 
         echo 'PHP'.$ARGV[5].':  '.$phpExePath.PHP_EOL;
 
-        $cli = $ARGV;
         unset($ARGV[0],$ARGV[1],$ARGV[2],$ARGV[3],$ARGV[4],$ARGV[5]);
         if ($ARGV[6] ==='composer'){
             unset($ARGV[6]);
@@ -244,70 +248,65 @@ class NormPhpCliDriveService
         return implode(PHP_EOL,$execRes);
 
     }
+
     /**
-     * 下载更新php
-     * @param $ARGV 命令行参数
+     * 下载更新 php
+     * @param array|string $ARGV 命令行参数
+     * @param bool $update
      * @return string
      */
-    public function phpUpdate($ARGV,bool$update=true)
+    public function phpUpdate(array|string $ARGV, bool $update=true): string
     {
         if (!isset($ARGV[5]) || empty($ARGV[5])){
             return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);
         }
         $versions = $ARGV[5];
-        //[[OFFICIAL|CLOUD]
         if (!isset($ARGV[6]) || empty($ARGV[6])){
             $resource = 'OFFICIAL';
         }
-        // [x86|x64]]
-        if (!isset($ARGV[7]) || empty($ARGV[7])){
-            $architecture = 'x86';
-        }
+
         if ($versions ==='all'){
-            foreach (PhpDownloadService::RESOURCE[$resource][$architecture] as $key=>$value){
-                (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$key,architecture:$architecture,resource:$resource);
+            foreach (PhpDownloadService::RESOURCE[$resource] as $key=>$value){
+                (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$key,resource:$resource);
             }
             return '';
         }
         /**
          * 如果版本不存在
          */
-        if (empty(PhpDownloadService::RESOURCE[$resource][$architecture][$versions]??'')){ return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);};
-        (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$versions,architecture:$architecture,resource:$resource);
+        if (empty(PhpDownloadService::RESOURCE[$resource][$versions]??'')){ return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);};
+        (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$versions,resource:$resource);
         return '';
     }
 
     /**
      * 下载更新php
-     * @param $ARGV 命令行参数
+     * @param array|string $ARGV 命令行参数
      * @param bool $update 是否强制更新下载
      * @return string
+     * @throws \Exception
      */
-    public function phpInstall($ARGV,bool$update=false)
+    public function phpInstall(array|string$ARGV,bool$update=false): string
     {
         if (!isset($ARGV[5]) || empty($ARGV[5])){
             return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);
         }
         $versions = $ARGV[5];
-        //[[OFFICIAL|CLOUD]
-        if (!isset($ARGV[6]) || empty($ARGV[6])){
+        if (!isset($ARGV[6]) || empty($ARGV[6])) {
             $resource = 'OFFICIAL';
         }
-        // [x86|x64]]
-        if (!isset($ARGV[7]) || empty($ARGV[7])){
-            $architecture = 'x86';
-        }
+
         if ($versions ==='all') {
-            foreach (PhpDownloadService::RESOURCE[$resource][$architecture] as $key=>$value){
-                $res =  (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$key,architecture:$architecture,resource:$resource,update:$update)->installPHP();
+            foreach (PhpDownloadService::RESOURCE[$resource] as $key=>$value){
+                $res =  (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$key,resource:$resource,update:$update)->installPHP();
             }
             return '';
         }
             /**
          * 如果版本不存在
          */
-        if (empty(PhpDownloadService::RESOURCE[$resource][$architecture][$versions]??'')){ return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);};
-        $res =  (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$versions,architecture:$architecture,resource:$resource,update:$update)->installPHP();
+        if (empty(PhpDownloadService::RESOURCE[$resource][$versions]??'')){ return $this->help(self::NORMPHP_CLI[$ARGV[3]]['help'],$ARGV[3]);};
+        $res =  (new PhpDownloadService(dirname($this->APP->DOCUMENT_ROOT,1)))->download(versions:$versions,resource:$resource,update:$update)->installPHP();
         return '';
     }
 

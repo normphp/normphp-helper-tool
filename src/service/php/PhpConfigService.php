@@ -20,7 +20,7 @@ class PhpConfigService
      * 不同版本自定义配置
      */
     const INI_TPL=[
-        '8.0'=>['config'=>[], 'extension'=>[]],
+        '8.1'=>['config'=>[], 'extension'=>[]],
         '7.4'=>['config'=>[], 'extension'=>[]],
         '7.3'=>['config'=>[], 'extension'=>[]],
         '7.2'=>['config'=>[], 'extension'=>[]],
@@ -56,16 +56,15 @@ class PhpConfigService
      * 写入配置
      * @param string $rootDir
      * @param string $versions
-     * @param string $architecture
      * @param array $peclArray
      * @param string $phpIniPath
      * @throws \Exception
      */
-    public function setIni(string $rootDir,string $versions,string $architecture,array $peclArray,string $phpIniPath='')
+    public function setIni(string $rootDir,string $versions,array $peclArray,string $phpIniPath='')
     {
         $res = $this->getIni(rootDir: $rootDir,versions: $versions,peclArray: $peclArray);
         if ($phpIniPath===''){
-            $phpIniPath = $rootDir.DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$versions.DIRECTORY_SEPARATOR.$architecture.DIRECTORY_SEPARATOR.'php.ini';
+            $phpIniPath = $rootDir.DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$versions.DIRECTORY_SEPARATOR.'php.ini';
         }
         echo '写入配置文件：'.$phpIniPath.PHP_EOL.PHP_EOL;
         file_put_contents($phpIniPath,$res);
