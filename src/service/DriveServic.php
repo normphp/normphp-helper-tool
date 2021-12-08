@@ -47,6 +47,7 @@ class DriveServic
 
     /**
      * 设置环境变量
+     * @param string $pattern
      * @param string $path
      */
     public function setVariate(string $pattern,string $path)
@@ -58,7 +59,7 @@ class DriveServic
             $unset=false;
             # 检查如是否 有php 关键字 '/\\\php[876\\\]/'
             preg_match($pattern,$value,$phpRes);
-            if (!empty($phpRes)){
+            if (!empty($phpRes)) {
                 $quondam[] = $value;
                 $unset=true;
             }
@@ -90,12 +91,11 @@ class DriveServic
      * @param string $variate
      * @return mixed
      */
-    public  function refreshVariate($variate ='PATH'): mixed
+    public  function refreshVariate(string $variate ='PATH'): mixed
     {
         exec('REG query HKCU\Environment /V '.$variate, $originPath);
         $originPath = explode('    ', $originPath[2]??'');
-        $originPath = $originPath[3]??'';
-        return $originPath;
+        return $originPath[3]??'';
     }
 
     /**
@@ -103,7 +103,7 @@ class DriveServic
      * @param string $variate
      * @return array|bool
      */
-    public  function refreshVariateMatch($variate ='PATH'): array|bool
+    public  function refreshVariateMatch(string $variate ='PATH'): array|bool
     {
         $str = $this->refreshVariate($variate);
         if (isset($str) && !empty($str)){
