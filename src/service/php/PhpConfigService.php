@@ -67,6 +67,6 @@ class PhpConfigService
             $phpIniPath = $rootDir.DIRECTORY_SEPARATOR.'php'.DIRECTORY_SEPARATOR.$versions.DIRECTORY_SEPARATOR.'php.ini';
         }
         echo '写入配置文件：'.$phpIniPath.PHP_EOL.PHP_EOL;
-        file_put_contents($phpIniPath,$res);
+        file_put_contents($phpIniPath, $res);
     }
 }

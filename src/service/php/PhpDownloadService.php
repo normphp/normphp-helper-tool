@@ -17,6 +17,10 @@ class PhpDownloadService
     const OFFICIAL_PHP_X64_DOWNLOAD_URL = [
         '8.1'=>['url'=>'https://windows.php.net/downloads/releases/latest/php-8.1-nts-Win32-vs16-x64-latest.zip','versions'=>'8.1',
             'pecl'=>[
+                'redis'=>['url'=>'https://windows.php.net/downloads/pecl/releases/redis/5.3.7/php_redis-5.3.7-8.1-nts-vs16-x64.zip'],
+                'ssh2'=>['url'=>'https://windows.php.net/downloads/pecl/releases/ssh2/1.3.1/php_ssh2-1.3.1-8.1-nts-vs16-x64.zip'],
+                'xlswriter'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xlswriter/1.5.1/php_xlswriter-1.5.1-8.1-nts-vs16-x64.zip'],
+                'xhprof'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xhprof/2.3.5/php_xhprof-2.3.5-8.1-nts-vs16-x64.zip'],
             ]
         ],
         '7.4'=>['url'=>'https://windows.php.net/downloads/releases/latest/php-7.4-nts-Win32-vc15-x64-latest.zip','versions'=>'7.4',
@@ -24,6 +28,7 @@ class PhpDownloadService
                 'redis'=>['url'=>'https://windows.php.net/downloads/pecl/releases/redis/5.3.4/php_redis-5.3.4-7.4-nts-vc15-x64.zip'],
                 'ssh2'=>['url'=>'https://windows.php.net/downloads/pecl/releases/ssh2/1.3.1/php_ssh2-1.3.1-7.4-nts-vc15-x64.zip'],
                 'xlswriter'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xlswriter/1.5.1/php_xlswriter-1.5.1-7.4-nts-vc15-x64.zip'],
+                'xhprof' =>['url'=>'https://windows.php.net/downloads/pecl/releases/xhprof/2.3.5/php_xhprof-2.3.5-8.1-nts-vs16-x64.zip'],
             ]
         ],
         '7.3'=>['url'=>'https://windows.php.net/downloads/releases/latest/php-7.3-nts-Win32-VC15-x64-latest.zip','versions'=>'7.3',
@@ -141,7 +146,7 @@ class PhpDownloadService
             echo '  对['.$phpFilePath.']'.'进行解压'.PHP_EOL;
             Helper()->file()->createDir($phpFileUnzipPath);
             Helper()->file()->createDir($phpFileUnzipTmpPath);
-            if (Helper()->file()->unzip($phpFilePath,$phpFileUnzipTmpPath)){
+            if (Helper()->file()->unzip($phpFilePath, $phpFileUnzipTmpPath)){
                 echo '  解压成功（临时目录）:'.$phpFileUnzipTmpPath.PHP_EOL;
             }else{
                 echo '  解压失败:'.PHP_EOL;
@@ -180,19 +185,13 @@ class PhpDownloadService
         # 配置文件处理
         $phpIniPath = $phpFileUnzipTmpPath.DIRECTORY_SEPARATOR.'php.ini';
         (new PhpConfigService())->setIni(rootDir: $this->rootDir,versions: $this->versions, peclArray: $peclArray??[], phpIniPath:$phpIniPath);
-        if (NormPhpCliDriveService::RELY_PHP_VERSION === $this->versions) {
-            echo '  当前脚手架依赖 PHP '.NormPhpCliDriveService::RELY_PHP_VERSION.' 无法直接升级/安装'.PHP_EOL
-                .'  建议：'.PHP_EOL
-                .'    1、手动复制目录'.$phpFileUnzipTmpPath.'  内容覆盖到-> '.$phpFileUnzipPeclPath.' 目录内'.PHP_EOL;
-            return '';
-        }
         echo '  正在从临时目录:'.$phpFileUnzipTmpPath.' 复制到->'.$phpFileUnzipPeclPath.PHP_EOL;
 
         Helper()->file()->copyDir($phpFileUnzipTmpPath,$phpFileUnzipPeclPath);
     }
     /**
      * 下载对应版本PHP
-     * @param $versions 7.2|7.3|7.4
+     * @param $versions 7.3|7.4|8.0|8.1
      * @param string $resource OFFICIAL|CLOUD
      * @param string $savePath 保存地址
      * @param bool $update 是否强制更新
@@ -211,7 +210,7 @@ class PhpDownloadService
         echo ' 正在从'.$resource.'下载PHP '.$versions.'['.$this->downloadInfo['versions'].']['.$this->downloadInfo['url'].']'.PHP_EOL
             .' 过程缓慢(15分钟左右)如超过15分钟下载进度依然是卡住可尝试按回车键（不要强制结束）'.PHP_EOL
         ;
-        if ($path = Helper()->file()->downloadFile(url: $this->downloadInfo['url'], fileName: $fileName, savePath:$savePath, header: $header)){
+        if ($path = Helper()->file()->downloadFile(url: $this->downloadInfo['url'], fileName: $fileName, savePath:$savePath, header: $header)) {
             echo PHP_EOL.'从'.$resource.'下载PHP '.$versions.'['.$this->downloadInfo['versions'].'] 成功'.PHP_EOL.' ['.$this->downloadInfo['url'].']'.PHP_EOL.$path.PHP_EOL;
             return true;
         }else{
