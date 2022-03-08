@@ -31,18 +31,22 @@ class PhpDownloadService
                 'xhprof' =>['url'=>'https://windows.php.net/downloads/pecl/releases/xhprof/2.3.5/php_xhprof-2.3.5-8.1-nts-vs16-x64.zip'],
             ]
         ],
-        '7.3'=>['url'=>'https://windows.php.net/downloads/releases/latest/php-7.3-nts-Win32-VC15-x64-latest.zip','versions'=>'7.3',
+        '7.3'=>['url'=>'https://windows.php.net/downloads/releases/archives/php-7.3.9-nts-Win32-VC15-x64.zip','versions'=>'7.3',
             'pecl'=>[
                 'redis'=>['url'=>'https://windows.php.net/downloads/pecl/releases/redis/5.3.4/php_redis-5.3.4-7.3-nts-vc15-x64.zip'],
                 'ssh2'=>['url'=>'https://windows.php.net/downloads/pecl/releases/ssh2/1.3.1/php_ssh2-1.3.1-7.3-nts-vc15-x64.zip'],
                 'xlswriter'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xlswriter/1.5.1/php_xlswriter-1.5.1-7.3-nts-vc15-x64.zip'],
-            ]],
+                'xhprof'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xhprof/2.3.5/php_xhprof-2.3.5-7.3-nts-vc15-x64.zip'],
+            ]
+        ],
         '7.2'=>['url'=>'https://windows.php.net/downloads/releases/archives/php-7.2.9-nts-Win32-VC15-x64.zip','versions'=>'7.2.9',
             'pecl'=>[
                 'redis'=>['url'=>'https://windows.php.net/downloads/pecl/releases/redis/5.3.2/php_redis-5.3.2-7.2-nts-vc15-x64.zip'],
                 'ssh2'=>['url'=>'https://windows.php.net/downloads/pecl/releases/ssh2/1.2/php_ssh2-1.2-7.2-nts-vc15-x64.zip'],
                 'xlswriter'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xlswriter/1.3.6/php_xlswriter-1.3.6-7.2-nts-vc15-x64.zip'],
-            ]],
+                'xhprof'=>['url'=>'https://windows.php.net/downloads/pecl/releases/xhprof/2.2.3/php_xhprof-2.2.3-7.2-nts-vc15-x64.zip'],
+            ]
+        ],
     ];
     /**
      * normphp官方api 可获取国内下载地址列表
